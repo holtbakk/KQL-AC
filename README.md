@@ -9,7 +9,7 @@ Queries to search for sign-ins affected by Conditional Access policies matching 
 ## Quirks / Challenges
 
 * Feide session
-* AuthenticationContext logging (notApplicable?)
+* AuthenticationContext logging (where is notApplicable?)
 
 ## Step-by-step
 
