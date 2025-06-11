@@ -8,8 +8,9 @@ A journey in exploring queries to search for sign-ins affected by Conditional Ac
 
 ## Quirks / Challenges
 
-* Feide session
+* Feide session lifetime
 * AuthenticationContext logging (where is notApplicable?)
+* Fields not available in AADSignInEventsBeta in advanced hunting
 
 ## Step-by-step
 
