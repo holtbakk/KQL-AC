@@ -2,6 +2,10 @@
 
 Queries to search for sign-ins affected by Conditional Access policies matching Authentication Context for the Feide application.
 
+## Requirements
+* Log Analytics
+* SignnLogs + nonInteractiveSininLogs
+
 ## Quirks / Challenges
 
 * Feide session
