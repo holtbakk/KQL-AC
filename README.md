@@ -1,6 +1,6 @@
 # Workbook
 
-Queries to search for sign-ins affected by Conditional Access policies matching Authentication Context for the Feide application.
+A journey in exploring queries to search for sign-ins affected by Conditional Access policies matching Authentication Context for the Feide application.
 
 ## Requirements
 * Log Analytics
