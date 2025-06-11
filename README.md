@@ -40,8 +40,7 @@ SigninLogs
 | where AppDisplayName == "Feide"
 ```
 
-4) Expand to non-interactive sign-ins.
-
+4) Expand to non-interactive sign-ins. Fix mismatch in DeviceDetail content type.
 ```kql
 SigninLogs
 | where TimeGenerated >= ago(1h)
