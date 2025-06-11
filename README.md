@@ -13,7 +13,7 @@ Queries to search for sign-ins affected by Conditional Access policies matching 
 
 ## Step-by-step
 
-1) Check for available telemetry
+1) Check for all available telemetry
    
 ```kql
 SigninLogs
