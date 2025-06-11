@@ -20,7 +20,8 @@ SigninLogs
 | where TimeGenerated >= ago(1h)
 | where AppDisplayName == "Feide"
 ```
-2) Identify sign-ons with Authentication Context
+
+2) Identify sign-ins with Authentication Context
 
 ```kql
 SigninLogs
@@ -28,6 +29,16 @@ SigninLogs
 | where AppDisplayName == "Feide"
 | where AuthenticationContextClassReferences has "required"
 ```
+
+3) Expand to non-intersctive sign-ins
+
+```kql
+SigninLogs
+| where TimeGenerated >= ago(1h)
+| where AppDisplayName == "Feide"
+```
+
+4) 
 
 8) Final query
 
