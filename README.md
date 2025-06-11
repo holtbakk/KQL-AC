@@ -4,7 +4,7 @@ Queries to search for sign-ins affected by Conditional Access policies matching 
 
 ## Requirements
 * Log Analytics
-* SignnLogs + nonInteractiveSininLogs
+* SigninLogs + AADNonInteractiveUserSignInLogs
 
 ## Quirks / Challenges
 
