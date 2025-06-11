@@ -13,24 +13,26 @@ Queries to search for sign-ins affected by Conditional Access policies matching 
 
 ## Step-by-step
 
-1) Check for all available telemetry
+1) Check for all available telemetry.
    
 ```kql
+let TimeFrame = 1h;
 SigninLogs
-| where TimeGenerated >= ago(1h)
+| where TimeGenerated >= ago(TimeFrame)
 | where AppDisplayName == "Feide"
 ```
 
-2) Identify sign-ins with Authentication Context
+2) Identify sign-ins with Authentication Context.
 
 ```kql
+let TimeFrame = 3d;
 SigninLogs
-| where TimeGenerated >= ago(3d)
+| where TimeGenerated >= ago(TimeFrame)
 | where AppDisplayName == "Feide"
 | where AuthenticationContextClassReferences has "required"
 ```
 
-3) Limit to matching Conditional Access policies
+3) Limit to matching Conditional Access policies.
 
 ```kql
 SigninLogs
@@ -38,7 +40,7 @@ SigninLogs
 | where AppDisplayName == "Feide"
 ```
 
-4) Expand to non-interactive sign-ins
+4) Expand to non-interactive sign-ins.
 
 ```kql
 SigninLogs
@@ -48,10 +50,12 @@ SigninLogs
 
 5) 
 
-8) Final query. AC matching C10-c19 and similar CAP name
+8) Final query. AC matching C10-c19 and similar CAP name. Obfuscate identities.
 
 ```kql
 let TimeFrame = 3d;
+let AuthenticationContextRegex = "c1[0-9]";
+let ConditionalAccessRegex = "(?i)AC - c1[0-9]";
 union 
 (
     AADNonInteractiveUserSignInLogs
@@ -71,7 +75,7 @@ union
 | where AppDisplayName == "Feide"
 | mv-expand AuthContexts = AuthContextParsed
 | where tostring(AuthContexts.detail) == "required"
-| where tostring(AuthContexts.id) matches regex "c1[0-9]"
+| where tostring(AuthContexts.id) matches regex "AuthenticationContextRegex"
 | extend RequiredACID = tostring(AuthContexts.id)
 | summarize 
     RequiredACIDs = make_set(RequiredACID),
@@ -85,7 +89,7 @@ union
     Source = any(Source)
     by TimeGenerated, UserPrincipalName, CorrelationId, UserDisplayName
 | mv-expand Policies = ConditionalAccessPoliciesParsed
-| where Policies.displayName matches regex "(?i)AC - c1[0-9]"
+| where Policies.displayName matches regex "ConditionalAccessRegex"
 | where Policies.result in ("success", "reportOnlySuccess", "failure", "reportOnlyFailure")
 | extend ACID = tostring(RequiredACIDs[0])
 | extend Device = tostring(DeviceDetailParsed.displayName),
