@@ -48,7 +48,7 @@ SigninLogs
 
 5) 
 
-8) Final query
+8) Final query. AC matching C10-c19 and similar CAP name
 
 ```kql
 let TimeFrame = 3d;
