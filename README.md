@@ -1,17 +1,22 @@
 # KQL-AC
 
-## Intro
+Queries to search for sign-ons affected by Conditional Access policies matching Authentication Context for the Feide application.
 
-## Examples
+## Querks
 
+
+
+## Step-by-step
+
+1) Check for available telemetry
+   
 ```kql
 SigninLogs
 | where TimeGenerated >= ago(1h)
 | where AppDisplayName == "Feide"
 ```
 
-And 
-
+8) Final query
 
 ```kql
 let TimeFrame = 3d;
