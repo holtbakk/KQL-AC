@@ -1,4 +1,4 @@
-# KQL-AC
+# Workbook
 
 Queries to search for sign-ins affected by Conditional Access policies matching Authentication Context for the Feide application.
 
@@ -30,7 +30,7 @@ SigninLogs
 | where AuthenticationContextClassReferences has "required"
 ```
 
-3) Expand to non-intersctive sign-ins
+3) Limit to matching Conditional Access policies
 
 ```kql
 SigninLogs
@@ -38,7 +38,15 @@ SigninLogs
 | where AppDisplayName == "Feide"
 ```
 
-4) 
+4) Expand to non-interactive sign-ins
+
+```kql
+SigninLogs
+| where TimeGenerated >= ago(1h)
+| where AppDisplayName == "Feide"
+```
+
+5) 
 
 8) Final query
 
