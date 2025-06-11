@@ -1,10 +1,11 @@
 # KQL-AC
 
-Queries to search for sign-ons affected by Conditional Access policies matching Authentication Context for the Feide application.
+Queries to search for sign-ins affected by Conditional Access policies matching Authentication Context for the Feide application.
 
-## Querks
+## Quirks / Challenges
 
-
+* Feide session
+* AuthenticationContext logging
 
 ## Step-by-step
 
