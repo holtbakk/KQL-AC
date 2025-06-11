@@ -9,7 +9,7 @@ Queries to search for sign-ins affected by Conditional Access policies matching 
 ## Quirks / Challenges
 
 * Feide session
-* AuthenticationContext logging
+* AuthenticationContext logging (notApplicable?)
 
 ## Step-by-step
 
@@ -100,3 +100,7 @@ union
 | project FormattedTime, Source, FirstName, Device, Compliant, Managed, AppDisplayName, ACID, PolicyName = Policies.displayName, PolicyResult = Policies.result, ConditionalAccessStatus, ResultType, ResultDescription
 | order by FormattedTime desc
 ```
+
+## Referrals
+https://learn.microsoft.com/en-us/graph/api/resources/authenticationcontext?view=graph-rest-beta
+
