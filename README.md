@@ -3,7 +3,7 @@
 Exploring queries to search for sign-ins affected by Conditional Access policies matching Authentication Context for the Feide application.
 
 ## Requirements
-* Log Analytics
+* Advanced hunting in Defender or Log Analytics
 * SigninLogs + AADNonInteractiveUserSignInLogs
 
 ## Quirks / Challenges
