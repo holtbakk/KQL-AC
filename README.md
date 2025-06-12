@@ -14,7 +14,7 @@ Exploring queries to search for sign-ins affected by Conditional Access policies
 
 ## Step-by-step
 
-1) Check for all available telemetry.
+1) Start by getting all available telemetry for investigation.
    
 ```kql
 let TimeFrame = 1h;
@@ -132,5 +132,5 @@ union
 ```
 
 ## Referrals
-https://learn.microsoft.com/en-us/graph/api/resources/authenticationcontext?view=graph-rest-beta
-
+* https://learn.microsoft.com/en-us/graph/api/resources/authenticationcontext?view=graph-rest-beta
+* https://learn.microsoft.com/en-us/graph/api/resources/authenticationcontext?view=graph-rest-beta&viewFallbackFrom=graph-rest-1.0
