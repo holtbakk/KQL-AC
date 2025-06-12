@@ -50,23 +50,17 @@ SigninLogs
 | project FormattedTime, FirstName, RequiredClassIds, ConditionalAccessStatus
 ```
 
-4) Expand to non-interactive sign-ins. Fix for mismatch in DeviceDetail content type.
+4) Expand to include non-interactive sign-ins.
 ```kql
 let TimeFrame = 3d;
 union 
 (
     AADNonInteractiveUserSignInLogs
-    | extend Source = "NonInteractive",
-             DeviceDetailParsed = todynamic(DeviceDetail),
-             ConditionalAccessPoliciesParsed = iff(isnull(ConditionalAccessPolicies), dynamic([]), todynamic(ConditionalAccessPolicies)),
-             AuthContextParsed = iff(isnull(AuthenticationContextClassReferences), dynamic([]), todynamic(AuthenticationContextClassReferences))
+    | extend Source = "NonInteractive"
 ),
 (
     SigninLogs
-    | extend Source = "Interactive",
-             DeviceDetailParsed = DeviceDetail,
-             ConditionalAccessPoliciesParsed = iff(isnull(ConditionalAccessPolicies), dynamic([]), todynamic(ConditionalAccessPolicies)),
-             AuthContextParsed = iff(isnull(AuthenticationContextClassReferences), dynamic([]), todynamic(AuthenticationContextClassReferences))
+    | extend Source = "Interactive"
 )
 | where TimeGenerated >= ago(TimeFrame)
 | where AppDisplayName == "Feide"
@@ -80,7 +74,33 @@ union
 | project FormattedTime, FirstName, RequiredClassIds, ConditionalAccessStatus
 ```
 
-5) Final query. Adding filter for Authentication Context matching C10-c19 and similar matching Conditional Access policy name.
+5) Expand to check for device compliance and management. Fix for mismatch in DeviceDetail content type.
+```kql
+let TimeFrame = 3d;
+union 
+(
+    AADNonInteractiveUserSignInLogs
+    | extend Source = "NonInteractive",
+             DeviceDetailParsed = todynamic(DeviceDetail)
+),
+(
+    SigninLogs
+    | extend Source = "Interactive",
+             DeviceDetailParsed = DeviceDetail
+)
+| where TimeGenerated >= ago(TimeFrame)
+| where AppDisplayName == "Feide"
+| where AuthenticationContextClassReferences has "required"
+| extend Device = tostring(DeviceDetailParsed.displayName), Compliant = tostring(DeviceDetailParsed.isCompliant), Managed = tostring(DeviceDetailParsed.isManaged)| extend FirstName = iif(UserDisplayName contains ",", trim(" ", tostring(split(UserDisplayName, ",")[1])), split(UserDisplayName, " ")[0])
+| extend FormattedTime = format_datetime(TimeGenerated, "M/d HH:mm")
+| extend RequiredClassIds = array_concat(extract_all(@'"id":"([^"]+)"[^}]*"detail":"required"', AuthenticationContextClassReferences))
+| mv-expand RequiredClassIds
+| summarize RequiredClassIds = strcat_array(make_set(tostring(RequiredClassIds)), ", ") by TimeGenerated, UserPrincipalName, FirstName, Device, Compliant, Managed, FormattedTime, ConditionalAccessStatus
+| order by TimeGenerated desc
+| project FormattedTime, FirstName, Device, Compliant, Managed, RequiredClassIds, ConditionalAccessStatus
+```
+
+6) Final query. Adding filter for Authentication Context matching C10-c19 and similar matching Conditional Access policy name.
 
 ```kql
 let TimeFrame = 3d;
