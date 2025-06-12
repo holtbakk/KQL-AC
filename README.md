@@ -100,7 +100,7 @@ union
 | project FormattedTime, FirstName, Device, Compliant, Managed, RequiredClassIds, ConditionalAccessStatus
 ```
 
-6) Final query. Adding filter for Authentication Context matching C10-c19 and similar matching Conditional Access policy name.
+6) Final query. Adding filter for Authentication Context matching C10-c19 and similar matching Conditional Access policy name. Adding Domain for external users.
 
 ```kql
 let TimeFrame = 3d;
@@ -134,8 +134,9 @@ union
 | extend ACID = tostring(RequiredACIDs[0])
 | extend Device = tostring(DeviceDetailParsed.displayName), Compliant = tostring(DeviceDetailParsed.isCompliant), Managed = tostring(DeviceDetailParsed.isManaged)
 | extend FirstName = iif(UserDisplayName contains ",", trim(" ", tostring(split(UserDisplayName, ",")[1])), split(UserDisplayName, " ")[0])
+| extend Domain = iif(UserPrincipalName contains "@nmbu.no", "", tostring(split(UserPrincipalName, "@")[1]))
 | extend FormattedTime = format_datetime(TimeGenerated, "M/d HH:mm")
-| project FormattedTime, Source, FirstName, Device, Compliant, Managed, AppDisplayName, ACID, PolicyName = Policies.displayName, PolicyResult = Policies.result, ConditionalAccessStatus, ResultType, ResultDescription
+| project FormattedTime, Source, FirstName, Domain, Device, Compliant, Managed, AppDisplayName, ACID, PolicyName = Policies.displayName, PolicyResult = Policies.result, ConditionalAccessStatus, ResultType, ResultDescription
 | order by FormattedTime desc
 ```
 
