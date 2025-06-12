@@ -100,7 +100,7 @@ union
 | project FormattedTime, FirstName, Device, Compliant, Managed, RequiredClassIds, ConditionalAccessStatus
 ```
 
-6) Final query. Adding filter for Authentication Context matching C10-c19 and similar matching Conditional Access policy name. Adding Domain for external users.
+6) Final query. Adding Domain for external users. Adding filter for Authentication Context matching C10-c19 and similar matching Conditional Access policy name. Displaying relevant results.
 
 ```kql
 let TimeFrame = 3d;
