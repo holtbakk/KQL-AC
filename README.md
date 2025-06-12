@@ -33,7 +33,7 @@ SigninLogs
 | where AuthenticationContextClassReferences has "required"
 ```
 
-3) Obfuscate itentities, shorten date/time column and expand the search to get the Authentication Context.
+3) Obfuscate itentities and shorten date/time column. Also expand the search to get the Authentication Context and the Conditional Access status.
 
 ```kql
 let TimeFrame = 3d;
@@ -45,9 +45,9 @@ SigninLogs
 | extend FormattedTime = format_datetime(TimeGenerated, "M/d HH:mm")
 | extend RequiredClassIds = array_concat(extract_all(@'"id":"([^"]+)"[^}]*"detail":"required"', AuthenticationContextClassReferences))
 | mv-expand RequiredClassIds
-| summarize RequiredClassIds = strcat_array(make_set(tostring(RequiredClassIds)), ", ") by TimeGenerated, UserPrincipalName, FirstName, FormattedTime
-| project FormattedTime, FirstName, RequiredClassIds
-| order by FormattedTime desc
+| summarize RequiredClassIds = strcat_array(make_set(tostring(RequiredClassIds)), ", ") by TimeGenerated, UserPrincipalName, FirstName, FormattedTime, ConditionalAccessStatus
+| order by TimeGenerated desc
+| project FormattedTime, FirstName, RequiredClassIds, ConditionalAccessStatus
 ```
 
 4) Expand to non-interactive sign-ins. Fix mismatch in DeviceDetail content type.
