@@ -33,7 +33,7 @@ SigninLogs
 | where AuthenticationContextClassReferences has "required"
 ```
 
-3) Obfuscate itentities and shorten date/time column. Expand to get Authentication Context and generic Conditional Access status.
+3) Expand to get Authentication Context and generic Conditional Access status. Obfuscate itentities and shorten date/time column for presentation.
 
 ```kql
 let TimeFrame = 3d;
