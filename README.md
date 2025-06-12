@@ -50,7 +50,7 @@ SigninLogs
 | project FormattedTime, FirstName, RequiredClassIds, ConditionalAccessStatus
 ```
 
-4) Expand to non-interactive sign-ins. Had to fix mismatch in DeviceDetail content type.
+4) Expand to non-interactive sign-ins. Fix for mismatch in DeviceDetail content type.
 ```kql
 let TimeFrame = 3d;
 union 
@@ -80,7 +80,7 @@ union
 | project FormattedTime, FirstName, RequiredClassIds, ConditionalAccessStatus
 ```
 
-5) Final query. AC matching C10-c19 and similar CAP name. Obfuscate identities.
+5) Final query. Adding filter for Authentication Context matching C10-c19 and similar matching Conditional Access policy name.
 
 ```kql
 let TimeFrame = 3d;
