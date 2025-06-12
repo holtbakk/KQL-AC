@@ -55,12 +55,10 @@ SigninLogs
 let TimeFrame = 3d;
 union 
 (
-    AADNonInteractiveUserSignInLogs
-    | extend Source = "NonInteractive"
+    SigninLogs | extend Source = "Interactive"
 ),
 (
-    SigninLogs
-    | extend Source = "Interactive"
+    AADNonInteractiveUserSignInLogs | extend Source = "NonInteractive"
 )
 | where TimeGenerated >= ago(TimeFrame)
 | where AppDisplayName == "Feide"
@@ -79,14 +77,10 @@ union
 let TimeFrame = 3d;
 union 
 (
-    AADNonInteractiveUserSignInLogs
-    | extend Source = "NonInteractive",
-             DeviceDetailParsed = todynamic(DeviceDetail)
+    SigninLogs | extend Source = "Interactive", DeviceDetailParsed = DeviceDetail
 ),
 (
-    SigninLogs
-    | extend Source = "Interactive",
-             DeviceDetailParsed = DeviceDetail
+    AADNonInteractiveUserSignInLogs | extend Source = "NonInteractive", DeviceDetailParsed = todynamic(DeviceDetail)
 )
 | where TimeGenerated >= ago(TimeFrame)
 | where AppDisplayName == "Feide"
