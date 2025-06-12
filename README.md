@@ -3,11 +3,11 @@
 Exploring queries to search for sign-ins affected by Conditional Access policies matching Authentication Context for the Feide application.
 
 ## Requirements
-* Advanced hunting in Defender or Log Analytics
-* SigninLogs + AADNonInteractiveUserSignInLogs
+* Advanced hunting in Defender, or Log analytics
+* SigninLogs + AADNonInteractiveUserSignInLogs (Log analytics)
 
 ## Quirks / Challenges
-
+* Remember default retention in Defender vs. manual in Log analytics
 * Feide session lifetime.
 * AuthenticationContext logging. Where is notApplicable?
 * Fields not available in AADSignInEventsBeta in advanced hunting, the only (?) table containing both interactive and non-interactive sign-ins.
