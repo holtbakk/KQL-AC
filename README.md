@@ -33,7 +33,7 @@ SigninLogs
 | where AuthenticationContextClassReferences has "required"
 ```
 
-3) Obfuscate itentities and shorten date/time column. Also expand the search to get the Authentication Context and the Conditional Access status.
+3) Obfuscate itentities and shorten date/time column. Expand to get Authentication Context and generic Conditional Access status.
 
 ```kql
 let TimeFrame = 3d;
@@ -50,16 +50,37 @@ SigninLogs
 | project FormattedTime, FirstName, RequiredClassIds, ConditionalAccessStatus
 ```
 
-4) Expand to non-interactive sign-ins. Fix mismatch in DeviceDetail content type.
+4) Expand to non-interactive sign-ins. Had to fix mismatch in DeviceDetail content type.
 ```kql
-SigninLogs
-| where TimeGenerated >= ago(1h)
+let TimeFrame = 3d;
+union 
+(
+    AADNonInteractiveUserSignInLogs
+    | extend Source = "NonInteractive",
+             DeviceDetailParsed = todynamic(DeviceDetail),
+             ConditionalAccessPoliciesParsed = iff(isnull(ConditionalAccessPolicies), dynamic([]), todynamic(ConditionalAccessPolicies)),
+             AuthContextParsed = iff(isnull(AuthenticationContextClassReferences), dynamic([]), todynamic(AuthenticationContextClassReferences))
+),
+(
+    SigninLogs
+    | extend Source = "Interactive",
+             DeviceDetailParsed = DeviceDetail,
+             ConditionalAccessPoliciesParsed = iff(isnull(ConditionalAccessPolicies), dynamic([]), todynamic(ConditionalAccessPolicies)),
+             AuthContextParsed = iff(isnull(AuthenticationContextClassReferences), dynamic([]), todynamic(AuthenticationContextClassReferences))
+)
+| where TimeGenerated >= ago(TimeFrame)
 | where AppDisplayName == "Feide"
+| where AuthenticationContextClassReferences has "required"
+| extend FirstName = iif(UserDisplayName contains ",", trim(" ", tostring(split(UserDisplayName, ",")[1])), split(UserDisplayName, " ")[0])
+| extend FormattedTime = format_datetime(TimeGenerated, "M/d HH:mm")
+| extend RequiredClassIds = array_concat(extract_all(@'"id":"([^"]+)"[^}]*"detail":"required"', AuthenticationContextClassReferences))
+| mv-expand RequiredClassIds
+| summarize RequiredClassIds = strcat_array(make_set(tostring(RequiredClassIds)), ", ") by TimeGenerated, UserPrincipalName, FirstName, FormattedTime, ConditionalAccessStatus
+| order by TimeGenerated desc
+| project FormattedTime, FirstName, RequiredClassIds, ConditionalAccessStatus
 ```
 
-5) 
-
-8) Final query. AC matching C10-c19 and similar CAP name. Obfuscate identities.
+5) Final query. AC matching C10-c19 and similar CAP name. Obfuscate identities.
 
 ```kql
 let TimeFrame = 3d;
