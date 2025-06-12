@@ -107,24 +107,12 @@ union
 | where tostring(AuthContexts.detail) == "required"
 | where tostring(AuthContexts.id) matches regex AuthenticationContextRegex
 | extend RequiredACID = tostring(AuthContexts.id)
-| summarize 
-    RequiredACIDs = make_set(RequiredACID),
-    ConditionalAccessPoliciesParsed = any(ConditionalAccessPoliciesParsed),
-    DeviceDetailParsed = any(DeviceDetailParsed),
-    ConditionalAccessStatus = any(ConditionalAccessStatus),
-    ResultType = any(ResultType),
-    ResultDescription = any(ResultDescription),
-    IPAddress = any(IPAddress),
-    AppDisplayName = any(AppDisplayName),
-    Source = any(Source)
-    by TimeGenerated, UserPrincipalName, CorrelationId, UserDisplayName
+| summarize RequiredACIDs = make_set(RequiredACID), ConditionalAccessPoliciesParsed = any(ConditionalAccessPoliciesParsed), DeviceDetailParsed = any(DeviceDetailParsed), ConditionalAccessStatus = any(ConditionalAccessStatus), ResultType = any(ResultType), ResultDescription = any(ResultDescription), IPAddress = any(IPAddress), AppDisplayName = any(AppDisplayName), Source = any(Source) by TimeGenerated, UserPrincipalName, CorrelationId, UserDisplayName
 | mv-expand Policies = ConditionalAccessPoliciesParsed
 | where Policies.displayName matches regex ConditionalAccessRegex
 | where Policies.result in ("success", "reportOnlySuccess", "failure", "reportOnlyFailure")
 | extend ACID = tostring(RequiredACIDs[0])
-| extend Device = tostring(DeviceDetailParsed.displayName),
-         Compliant = tostring(DeviceDetailParsed.isCompliant),
-         Managed = tostring(DeviceDetailParsed.isManaged)
+| extend Device = tostring(DeviceDetailParsed.displayName), Compliant = tostring(DeviceDetailParsed.isCompliant), Managed = tostring(DeviceDetailParsed.isManaged)
 | extend FirstName = iif(UserDisplayName contains ",", trim(" ", tostring(split(UserDisplayName, ",")[1])), split(UserDisplayName, " ")[0])
 | extend FormattedTime = format_datetime(TimeGenerated, "M/d HH:mm")
 | project FormattedTime, Source, FirstName, Device, Compliant, Managed, AppDisplayName, ACID, PolicyName = Policies.displayName, PolicyResult = Policies.result, ConditionalAccessStatus, ResultType, ResultDescription
