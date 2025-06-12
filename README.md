@@ -105,7 +105,7 @@ union
 | where AppDisplayName == "Feide"
 | mv-expand AuthContexts = AuthContextParsed
 | where tostring(AuthContexts.detail) == "required"
-| where tostring(AuthContexts.id) matches regex "AuthenticationContextRegex"
+| where tostring(AuthContexts.id) matches regex AuthenticationContextRegex
 | extend RequiredACID = tostring(AuthContexts.id)
 | summarize 
     RequiredACIDs = make_set(RequiredACID),
@@ -119,7 +119,7 @@ union
     Source = any(Source)
     by TimeGenerated, UserPrincipalName, CorrelationId, UserDisplayName
 | mv-expand Policies = ConditionalAccessPoliciesParsed
-| where Policies.displayName matches regex "ConditionalAccessRegex"
+| where Policies.displayName matches regex ConditionalAccessRegex
 | where Policies.result in ("success", "reportOnlySuccess", "failure", "reportOnlyFailure")
 | extend ACID = tostring(RequiredACIDs[0])
 | extend Device = tostring(DeviceDetailParsed.displayName),
