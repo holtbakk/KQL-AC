@@ -133,4 +133,4 @@ union
 
 ## Referrals
 * https://learn.microsoft.com/en-us/graph/api/resources/authenticationcontext?view=graph-rest-beta
-* https://learn.microsoft.com/en-us/graph/api/resources/authenticationcontext?view=graph-rest-beta&viewFallbackFrom=graph-rest-1.0
+* https://learn.microsoft.com/en-us/entra/identity-platform/developer-guide-conditional-access-authentication-context
