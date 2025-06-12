@@ -102,16 +102,16 @@ let AuthenticationContextRegex = "c1[0-9]";
 let ConditionalAccessRegex = "(?i)AC - c1[0-9]";
 union 
 (
-    AADNonInteractiveUserSignInLogs
-    | extend Source = "NonInteractive",
-             DeviceDetailParsed = todynamic(DeviceDetail),
+    SigninLogs
+    | extend Source = "Interactive",
+             DeviceDetailParsed = DeviceDetail,
              ConditionalAccessPoliciesParsed = iff(isnull(ConditionalAccessPolicies), dynamic([]), todynamic(ConditionalAccessPolicies)),
              AuthContextParsed = iff(isnull(AuthenticationContextClassReferences), dynamic([]), todynamic(AuthenticationContextClassReferences))
 ),
 (
-    SigninLogs
-    | extend Source = "Interactive",
-             DeviceDetailParsed = DeviceDetail,
+    AADNonInteractiveUserSignInLogs
+    | extend Source = "NonInteractive",
+             DeviceDetailParsed = todynamic(DeviceDetail),
              ConditionalAccessPoliciesParsed = iff(isnull(ConditionalAccessPolicies), dynamic([]), todynamic(ConditionalAccessPolicies)),
              AuthContextParsed = iff(isnull(AuthenticationContextClassReferences), dynamic([]), todynamic(AuthenticationContextClassReferences))
 )
