@@ -33,12 +33,21 @@ SigninLogs
 | where AuthenticationContextClassReferences has "required"
 ```
 
-3) Limit to matching Conditional Access policies.
+3) Obfuscate itentities, shorten date/time column and expand the search to get the Authentication Context.
 
 ```kql
+let TimeFrame = 3d;
 SigninLogs
-| where TimeGenerated >= ago(1h)
+| where TimeGenerated >= ago(TimeFrame)
 | where AppDisplayName == "Feide"
+| where AuthenticationContextClassReferences has "required"
+| extend FirstName = iif(UserDisplayName contains ",", trim(" ", tostring(split(UserDisplayName, ",")[1])), split(UserDisplayName, " ")[0])
+| extend FormattedTime = format_datetime(TimeGenerated, "M/d HH:mm")
+| extend RequiredClassIds = array_concat(extract_all(@'"id":"([^"]+)"[^}]*"detail":"required"', AuthenticationContextClassReferences))
+| mv-expand RequiredClassIds
+| summarize RequiredClassIds = strcat_array(make_set(tostring(RequiredClassIds)), ", ") by TimeGenerated, UserPrincipalName, FirstName, FormattedTime
+| project FormattedTime, FirstName, RequiredClassIds
+| order by FormattedTime desc
 ```
 
 4) Expand to non-interactive sign-ins. Fix mismatch in DeviceDetail content type.
