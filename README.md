@@ -20,7 +20,7 @@ Exploring queries to search for sign-ins affected by Conditional Access policies
 let TimeFrame = 1h;
 SigninLogs
 | where TimeGenerated >= ago(TimeFrame)
-| where AppDisplayName == "Feide"
+**| where AppDisplayName == "Feide"**
 ```
 
 2) Identify sign-ins with Authentication Context.
