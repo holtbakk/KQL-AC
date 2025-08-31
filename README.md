@@ -129,9 +129,62 @@ union
 | extend Device = tostring(DeviceDetailParsed.displayName), Compliant = tostring(DeviceDetailParsed.isCompliant), Managed = tostring(DeviceDetailParsed.isManaged)
 | extend FirstName = iif(UserDisplayName contains ",", trim(" ", tostring(split(UserDisplayName, ",")[1])), split(UserDisplayName, " ")[0])
 | extend Domain = iif(UserPrincipalName contains "@nmbu.no", "", tostring(split(UserPrincipalName, "@")[1]))
-| extend FormattedTime = format_datetime(TimeGenerated, "M/d HH:mm")
+| extend FormattedTime = format_datetime(TimeGenerated, "dd/M HH:mm")
 | project FormattedTime, Source, FirstName, Domain, Device, Compliant, Managed, AppDisplayName, ACID, PolicyName = Policies.displayName, PolicyResult = Policies.result, ConditionalAccessStatus, ResultType, ResultDescription
 | order by FormattedTime desc
+```
+
+7) Ready for production. Asked Claude to optimize and removed name obfuscation.
+
+```kql
+let TimeFrame = 14d;
+let MyDomain = "@nmbu.no";
+let AuthenticationContextRegex = "c1[0-9]";
+let ConditionalAccessRegex = "(?i)AC - c1[0-9]";
+union 
+(
+    SigninLogs
+    | where TimeGenerated > ago(TimeFrame)
+    | where AppDisplayName == "Feide"
+    | where isnotempty(AuthenticationContextClassReferences)
+    | extend Source = "Interactive",
+             DeviceDetailParsed = DeviceDetail,
+             ConditionalAccessPoliciesParsed = ConditionalAccessPolicies,
+             AuthContextParsed = todynamic(AuthenticationContextClassReferences)
+),
+(
+    AADNonInteractiveUserSignInLogs
+    | where TimeGenerated > ago(TimeFrame)
+    | where AppDisplayName == "Feide"
+    | where isnotempty(AuthenticationContextClassReferences)
+    | extend Source = "NonInteractive",
+             DeviceDetailParsed = todynamic(DeviceDetail),
+             ConditionalAccessPoliciesParsed = todynamic(ConditionalAccessPolicies),
+             AuthContextParsed = todynamic(AuthenticationContextClassReferences)
+)
+| mv-expand AuthContexts = AuthContextParsed
+| where tostring(AuthContexts.detail) == "required"
+| where tostring(AuthContexts.id) matches regex AuthenticationContextRegex
+| extend RequiredACID = tostring(AuthContexts.id)
+| summarize RequiredACIDs = make_set(RequiredACID), ConditionalAccessPoliciesParsed = take_any(ConditionalAccessPoliciesParsed), DeviceDetailParsed = take_any(DeviceDetailParsed), ConditionalAccessStatus = take_any(ConditionalAccessStatus), ResultType = take_any(ResultType), ResultDescription = take_any(ResultDescription), IPAddress = take_any(IPAddress), AppDisplayName = take_any(AppDisplayName), Source = take_any(Source) by TimeGenerated, UserPrincipalName, CorrelationId, UserDisplayName
+| mv-expand Policies = ConditionalAccessPoliciesParsed
+| where isnotempty(Policies.displayName)
+| where Policies.displayName matches regex ConditionalAccessRegex
+| where Policies.result in ("success", "reportOnlySuccess", "failure", "reportOnlyFailure")
+| extend 
+    ACID = tostring(RequiredACIDs[0]),
+    Device = tostring(DeviceDetailParsed.displayName), 
+    Compliant = tobool(DeviceDetailParsed.isCompliant),
+    Managed = tobool(DeviceDetailParsed.isManaged),
+    Domain = case(
+        UserPrincipalName endswith MyDomain, "",
+        UserPrincipalName contains "@", tostring(split(UserPrincipalName, "@")[1]),
+        ""
+    ),
+    FormattedTime = format_datetime(TimeGenerated, "dd/M HH:mm")
+| project FormattedTime, Source, UserDisplayName, UserPrincipalName, Domain, Device, Compliant, Managed, AppDisplayName, ACID, PolicyName = tostring(Policies.displayName), PolicyResult = tostring(Policies.result), ConditionalAccessStatus, ResultType, ResultDescription
+| order by FormattedTime desc
+
 ```
 
 ## Referrals
