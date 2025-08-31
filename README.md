@@ -134,7 +134,7 @@ union
 | order by FormattedTime desc
 ```
 
-7) Ready for production. Asked Claude to optimize and removed name obfuscation.
+7) Ready for production. AI optimized and removed name obfuscation.
 
 ```kql
 let TimeFrame = 14d;
