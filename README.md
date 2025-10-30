@@ -10,8 +10,8 @@ Exploring queries to search for sign-ins affected by Conditional Access policies
 * Remember default retention in Defender vs. manual in Log analytics
 * Feide session lifetime.
 * AuthenticationContext logging. Where is notApplicable?
-* Fields not available in AADSignInEventsBeta in advanced hunting, the only (?) table containing both interactive and non-interactive sign-ins.
-* Opportunistic evaluation complicates.
+* AuthenticationContext info not available in AADSignInEventsBeta in advanced hunting, which is the only (?) table containing both interactive and non-interactive sign-ins.
+* Opportunistic evaluation complicates things.
 
 ## Step-by-step
 
